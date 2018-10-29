@@ -7,12 +7,12 @@ from Agent import AtariAgent
 
 GAME = "Breakout-v4"
 IMG_DIM = (84, 110)
-MAX_EPISODES = 1000
-EPS_GREEDY = 0.1
-REPLAY_MEMORY_SIZE = 1000		# Higher the better
+MAX_EPISODES = 1000000
+EPS_GREEDY = 0.05
+REPLAY_MEMORY_SIZE = 10000		# Higher the better
 INPUT_SHAPE = (4, 110, 84)
 BATCH_SIZE = 32
-UPDATE_FREQUENCY = 50			# Must be greater than BATCH_SIZE
+UPDATE_FREQUENCY = 32			# Must be greater than BATCH_SIZE
 MIN_EXP_TO_UPDATE = 50			# atmost REPLAY_MEMORY_SIZE
 DISCOUNT_FACTOR = 0.99
 
