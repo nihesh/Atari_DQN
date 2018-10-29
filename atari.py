@@ -7,9 +7,9 @@ from Agent import AtariAgent
 
 GAME = "Breakout-v4"
 IMG_DIM = (84, 110)
-MAX_EPISODES = 1000000
+MAX_EPISODES = 10000000
 EPS_GREEDY = 0.05
-REPLAY_MEMORY_SIZE = 10000		# Higher the better
+REPLAY_MEMORY_SIZE = 40000		# Higher the better
 INPUT_SHAPE = (4, 110, 84)
 BATCH_SIZE = 32
 UPDATE_FREQUENCY = 32			# Must be greater than BATCH_SIZE
@@ -27,6 +27,8 @@ if(__name__ == "__main__"):
 
 	MIN_EXP_TO_UPDATE = min(MIN_EXP_TO_UPDATE, REPLAY_MEMORY_SIZE-1)
 	agent = AtariAgent(environment.action_space.n, EPS_GREEDY, IMG_DIM, REPLAY_MEMORY_SIZE, INPUT_SHAPE, BATCH_SIZE, UPDATE_FREQUENCY, MIN_EXP_TO_UPDATE, DISCOUNT_FACTOR)
+
+	max_cum_reward = -1
 
 	while episodes < MAX_EPISODES:
 
@@ -51,7 +53,9 @@ if(__name__ == "__main__"):
 		episodes+=1
 		training_epoch.append(episodes)
 		cumulative_scores.append(score)
+		max_cum_reward = max(score, max_cum_reward)
 
 		print("Score obtained in Episode "+str(episodes)+" = "+str(score))
+		print("Max score so far = "+str(max_cum_reward))
 
 	environment.close()
