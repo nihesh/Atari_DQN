@@ -13,15 +13,17 @@ from keras.models import Sequential
 class DQN:
 
 	# Class variables	
-	actions = -1		# No of possible actions
-	batch_size = -1		# Number of datapoints to push through in one iteration
-	clf = -1			# DQN Model
-	EPOCHS = 1			# training epochs
+	actions = -1			# No of possible actions
+	batch_size = -1			# Number of datapoints to push through in one iteration
+	clf = -1				# DQN Model
+	discount_factor	= -1	# Discount factor in bellman equation
+	EPOCHS = 1				# training epochs
 
-	def __init__(self, no_of_actions, input_dimension, batch_size):
+	def __init__(self, no_of_actions, input_dimension, batch_size, discount_factor):
 
 		self.actions = no_of_actions
 		self.batch_size = batch_size
+		self.discount_factor = discount_factor
 
 		self.clf = Sequential()
 
@@ -73,10 +75,10 @@ class DQN:
 			X.append(np.asarray(instance["cur_state"]))
 
 			# Calculate expected reward
-			expected_reward = predictor.predict(instance["next_state"]).ravel()
+			expected_reward = predictor.predict(np.asarray([instance["next_state"]])).ravel()
 			max_expected_reward = np.max(expected_reward)
 
-			Y.append(list(self.predict(instance["cur_state"]))[0])
+			Y.append(np.asarray(list(self.predict(np.asarray([instance["cur_state"]])))[0]))
 
 			if(instance["done"]):
 				Y[-1][instance["action"]] = instance["reward"]												# The game has ended. 

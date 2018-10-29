@@ -12,6 +12,9 @@ EPS_GREEDY = 0.1
 REPLAY_MEMORY_SIZE = 1000		# Higher the better
 INPUT_SHAPE = (4, 110, 84)
 BATCH_SIZE = 32
+UPDATE_FREQUENCY = 50			# Must be greater than BATCH_SIZE
+MIN_EXP_TO_UPDATE = 50			# atmost REPLAY_MEMORY_SIZE
+DISCOUNT_FACTOR = 0.99
 
 if(__name__ == "__main__"):
 
@@ -22,7 +25,8 @@ if(__name__ == "__main__"):
 	training_epoch = []
 	cumulative_scores = []
 
-	agent = AtariAgent(environment.action_space.n, EPS_GREEDY, IMG_DIM, REPLAY_MEMORY_SIZE, INPUT_SHAPE, BATCH_SIZE)
+	MIN_EXP_TO_UPDATE = min(MIN_EXP_TO_UPDATE, REPLAY_MEMORY_SIZE-1)
+	agent = AtariAgent(environment.action_space.n, EPS_GREEDY, IMG_DIM, REPLAY_MEMORY_SIZE, INPUT_SHAPE, BATCH_SIZE, UPDATE_FREQUENCY, MIN_EXP_TO_UPDATE, DISCOUNT_FACTOR)
 
 	while episodes < MAX_EPISODES:
 
