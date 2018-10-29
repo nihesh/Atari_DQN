@@ -100,6 +100,24 @@ class AtariAgent:
 
 		self.cur_update = (self.cur_update+1)%self.update_frequency
 
+	def play(self, sample_space):
+
+		rndfloat = random.uniform(0,1)
+		if(rndfloat <= self.eps_greedy):
+			return sample_space.sample()
+
+		expected_rewards = self.stable_predictor.predict(np.asarray([self.state]))[0]
+
+		action = -1
+		reward = -1
+
+		for i in range(len(expected_rewards)):
+			if(expected_rewards[i] > reward):
+				reward = expected_rewards[i]
+				action = i
+
+		return action
+
 if(__name__ == "__main__"):
 
 	pass

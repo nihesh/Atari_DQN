@@ -29,10 +29,13 @@ if(__name__ == "__main__"):
 	agent = AtariAgent(environment.action_space.n, EPS_GREEDY, IMG_DIM, REPLAY_MEMORY_SIZE, INPUT_SHAPE, BATCH_SIZE, UPDATE_FREQUENCY, MIN_EXP_TO_UPDATE, DISCOUNT_FACTOR)
 
 	max_cum_reward = -1
+	avg = 0
 
 	while episodes < MAX_EPISODES:
 
 		init_state = environment.reset()
+
+		sample_space = environment.action_space
 
 		agent.reset_state(init_state)
 		score = 0
@@ -40,7 +43,7 @@ if(__name__ == "__main__"):
 		while(True):	# Play an episode
 
 			# Randomly samples an action to perform
-			action_to_perform = environment.action_space.sample()
+			action_to_perform = agent.play(sample_space)
 			next_state,reward,done,_ = environment.step(action_to_perform)
 			environment.render()
 			agent.update(action_to_perform, next_state, reward, done)
@@ -54,8 +57,10 @@ if(__name__ == "__main__"):
 		training_epoch.append(episodes)
 		cumulative_scores.append(score)
 		max_cum_reward = max(score, max_cum_reward)
+		avg = (avg*(len(cumulative_scores)-1) + score)/len(cumulative_scores)
 
 		print("Score obtained in Episode "+str(episodes)+" = "+str(score))
 		print("Max score so far = "+str(max_cum_reward))
+		print("Avg score so far = "+str(avg))
 
 	environment.close()
