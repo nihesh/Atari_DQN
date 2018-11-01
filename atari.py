@@ -5,14 +5,16 @@ import gym
 import time
 from Agent import AtariAgent
 import pickle
+import tensorflow as tf
+from tensorflow.python.client import device_lib
 
 GAME = "Breakout-v4"
 IMG_DIM = (84, 110)
 MAX_EPISODES = 1000000000000
 EPS_GREEDY = 0.1
 EPS_DEC_RATE = 1e-6
-REPLAY_MEMORY_SIZE = 100000		# Higher the better
-REPLAY_START = 50000
+REPLAY_MEMORY_SIZE = 10000		# Higher the better
+REPLAY_START = 5000
 INPUT_SHAPE = (4, 110, 84)
 BATCH_SIZE = 32
 TRAIN_FREQUENCY = 4				# freq of steps after which training has to be done
@@ -22,14 +24,20 @@ MODEL_SAVE_RATE = 100
 
 if(__name__ == "__main__"):
 
+	print(device_lib.list_local_devices())
+	print(tf.test.is_built_with_cuda())
 	environment = gym.make(GAME)
 
 	try:
-		print("Loading existing agent")
 		file = open("./agent.obj", "rb")
 		agent = pickle.load(file)
 		file.close()
-		print("No of items in replay memory: "+str(len(agent.replay_memory)))	# Replay memory size somehow gets reset to 0 here, after restarting
+		file = open("./replay.obj", "rb")
+		agent.replay_memory = pickle.load(file)
+		file.close()
+		print("Loading existing agent")
+		print("No of items in replay memory: "+str(len(agent.replay_memory)))	
+
 	except:	
 		print("Setting up agent")
 		agent = AtariAgent(environment.action_space.n, EPS_GREEDY, IMG_DIM, REPLAY_MEMORY_SIZE, INPUT_SHAPE, BATCH_SIZE, UPDATE_FREQUENCY, DISCOUNT_FACTOR, EPS_DEC_RATE, REPLAY_START, TRAIN_FREQUENCY)
@@ -58,14 +66,14 @@ if(__name__ == "__main__"):
 
 		if(agent.episode_id%MODEL_SAVE_RATE == 0):
 			file = open("./agent.obj","wb")
-			print("Serialising agent")
 			pickle.dump(agent, file)
 			file.close()
-			file = open("./agent.obj","rb")
-			agent = pickle.load(file)
+			file = open("./replay.obj", "wb")
+			pickle.dump(agent.replay_memory, file)
 			file.close()
-			print(len(agent.replay_memory))		# Prints the actual size of replay memory 
-		
+			print("Serialising agent")
+			print("No of items in replay memory: "+str(len(agent.replay_memory)))
+
 		agent.finishEpisode(score)
 
 		print("Score obtained in Episode "+str(agent.episode_id)+" = "+str(score))

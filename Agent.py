@@ -27,7 +27,6 @@ class AtariAgent:
 	replay_start_threshold = -1
 	train_freq = -1
 	cur_train_iter = 1
-	training_epoch = []
 	episode_id = 0
 	avg_reward = 0
 	max_reward = 0
