@@ -1,4 +1,4 @@
-# Author	: Nihesh Anderson K
+# Author	: Nihesh Anderson 
 # File 		: Agent.py
 
 from DQN import DQN
@@ -30,6 +30,9 @@ class AtariAgent:
 	episode_id = 0
 	avg_reward = 0
 	max_reward = 0
+	avg_score_vec = []
+	max_score_vec = []
+	training_iter = []
 
 	def finishEpisode(self, score):
 
@@ -107,6 +110,8 @@ class AtariAgent:
 			"done"		 : done
 		}
 
+		# Storing the event in replay memory
+
 		self.replay_memory.append(event)
 		
 		if(len(self.replay_memory)<=self.replay_start_threshold):
@@ -119,7 +124,13 @@ class AtariAgent:
 		
 			self.Q_Network.update_network(random.sample(self.replay_memory, self.batch_size), self.stable_predictor)
 
+		# update stable predictor to the weights of the Q network learner
+
 		if(self.cur_update == 0):
+
+			self.training_iter.append(self.episode_id)
+			self.avg_score_vec.append(self.avg_reward)
+			self.max_score_vec.append(self.max_reward)
 
 			self.stable_predictor.clf.set_weights(self.Q_Network.clf.get_weights())
 
@@ -127,6 +138,8 @@ class AtariAgent:
 	def play(self, sample_space):
 
 		rndfloat = random.uniform(0,1)
+
+		# Epsilon Annealing
 
 		if(len(self.replay_memory)>=self.replay_start_threshold):
 		
@@ -139,6 +152,8 @@ class AtariAgent:
 
 		action = -1
 		reward = -1
+
+		# Perform action with most utility
 
 		for i in range(len(expected_rewards)):
 			if(expected_rewards[i] > reward):

@@ -1,4 +1,4 @@
-# Author	: Nihesh Anderson K
+# Author	: Nihesh Anderson 
 # File 		: atari.py
 
 import gym
@@ -7,8 +7,11 @@ from Agent import AtariAgent
 import pickle
 import tensorflow as tf
 from tensorflow.python.client import device_lib
+from matplotlib import pyplot as plt
 
 GAME = "Breakout-v4"
+# GAME = "Pong-v0"
+PLOT_MODE = 100					# Number of episodes after which a plot has to be drawn. 0 implies inactive state
 IMG_DIM = (84, 110)
 MAX_EPISODES = 1000000000000
 EPS_GREEDY = 0.1
@@ -18,14 +21,12 @@ REPLAY_START = 5000
 INPUT_SHAPE = (4, 110, 84)
 BATCH_SIZE = 32
 TRAIN_FREQUENCY = 4				# freq of steps after which training has to be done
-UPDATE_FREQUENCY = 10000		# updating predictor	
+UPDATE_FREQUENCY = 1000			# updating predictor	
 DISCOUNT_FACTOR = 0.99
-MODEL_SAVE_RATE = 100
+MODEL_SAVE_RATE = 10
 
 if(__name__ == "__main__"):
 
-	print(device_lib.list_local_devices())
-	print(tf.test.is_built_with_cuda())
 	environment = gym.make(GAME)
 
 	try:
@@ -42,7 +43,15 @@ if(__name__ == "__main__"):
 		print("Setting up agent")
 		agent = AtariAgent(environment.action_space.n, EPS_GREEDY, IMG_DIM, REPLAY_MEMORY_SIZE, INPUT_SHAPE, BATCH_SIZE, UPDATE_FREQUENCY, DISCOUNT_FACTOR, EPS_DEC_RATE, REPLAY_START, TRAIN_FREQUENCY)
 
+	start_episode_id = agent.episode_id
+	
+	episode_vec = []
+	score_vec = []
+
 	while agent.episode_id < MAX_EPISODES:
+
+		if(PLOT_MODE>0):
+			print(str(PLOT_MODE - (agent.episode_id - start_episode_id)) + "iterations to go")
 
 		init_state = environment.reset()
 
@@ -64,6 +73,11 @@ if(__name__ == "__main__"):
 			if(done):
 				break
 
+		episode_vec.append(agent.episode_id)
+		score_vec.append(score)
+
+		# save the model periodically
+
 		if(agent.episode_id%MODEL_SAVE_RATE == 0):
 			file = open("./agent.obj","wb")
 			pickle.dump(agent, file)
@@ -79,6 +93,11 @@ if(__name__ == "__main__"):
 		print("Score obtained in Episode "+str(agent.episode_id)+" = "+str(score))
 		print("Max score so far = "+str(agent.max_reward))
 		print("Avg score so far = "+str(agent.avg_reward))
+		print("Length of avg_score_vec: "+str(len(agent.avg_score_vec)))
+		print("Last 5 elements in avg_score_vec"+str(agent.avg_score_vec[-5:]))
 
+		if(PLOT_MODE>0 and agent.episode_id - start_episode_id == PLOT_MODE):
+			plt.plot(episode_vec[-PLOT_MODE:], score_vec[-PLOT_MODE:])
+			plt.show()
 
 	environment.close()

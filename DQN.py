@@ -1,4 +1,4 @@
-# Author	: Nihesh Anderson K
+# Author	: Nihesh Anderson 
 # File 		: DQN.py
 
 """
